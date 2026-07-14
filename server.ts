@@ -114,12 +114,11 @@ function parseJSONRobustly(text: string): any {
   }
 }
 
-async function startServer() {
-  const app = express();
-  const PORT = 3000;
+const app = express();
+const PORT = 3000;
 
-  // Parse incoming JSON body
-  app.use(express.json());
+// Parse incoming JSON body
+app.use(express.json());
 
   // Health check endpoint
   app.get("/api/health", (req, res) => {
@@ -1038,8 +1037,9 @@ CRITICAL RULES:
     }
   });
 
+async function startServer() {
   // Vite middleware for development or static server for production
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -1058,4 +1058,8 @@ CRITICAL RULES:
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
