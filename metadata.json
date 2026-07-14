@@ -1,0 +1,8 @@
+{
+  "name": "RankPilot AI By Digital Ledger Solutions",
+  "description": "A powerful tool to generate viral YouTube titles, descriptions, hashtags, and tags using high-performance keywords and AI optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
