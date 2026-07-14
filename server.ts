@@ -12,15 +12,25 @@ dns.setDefaultResultOrder("ipv4first");
 
 dotenv.config();
 
-// Shared Gemini client utility with User-Agent header for telemetry
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
+// Shared Gemini client utility with lazy-initialization and graceful missing key handling
+let aiInstance: GoogleGenAI | null = null;
+function getAI(): GoogleGenAI {
+  if (!aiInstance) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is required. Please set it in the Settings menu of AI Studio.");
     }
+    aiInstance = new GoogleGenAI({
+      apiKey: apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
   }
-});
+  return aiInstance;
+}
 
 function parseJSONRobustly(text: string): any {
   let cleaned = text.trim();
@@ -796,7 +806,7 @@ CRITICAL RULES:
       } else {
         // Fallback to Request content generation using gemini-3.5-flash
         console.log("Using local Gemini API for generation with Search Grounding...");
-        const response = await ai.models.generateContent({
+        const response = await getAI().models.generateContent({
           model: "gemini-3.5-flash",
           contents: prompt,
           config: {
@@ -984,7 +994,7 @@ CRITICAL RULES:
         data = parseJSONRobustly(choiceText);
       } else {
         console.log("Using local Gemini API for thumbnail suggestions...");
-        const response = await ai.models.generateContent({
+        const response = await getAI().models.generateContent({
           model: "gemini-3.5-flash",
           contents: prompt,
           config: {
